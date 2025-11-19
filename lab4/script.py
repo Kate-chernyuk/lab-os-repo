@@ -13,7 +13,7 @@ def get_subjects(base_path):
     return subjects
 
 def find_student_with_most_mistakes(group_number, base_path="."):
-    """Анализ данных для конкретной группы - находим студента с наименьшим количеством правильных ответов"""
+    """Анализ данных для конкретной группы - находим студента с наибольшим количеством неправильных ответов"""
     subjects = get_subjects(base_path)
 
     student_correct_answers = defaultdict(int)
@@ -44,7 +44,7 @@ def find_student_with_most_mistakes(group_number, base_path="."):
                 continue
 
     if student_correct_answers:
-        # коварно исходм из той логики, что студент с наименьшим количеством правильных ответов = студент с наибольшим количествои неправильных
+        # коварно исходим из той логики, что студент с наименьшим количеством правильных ответов = студент с наибольшим количеством неправильных
         min_student = min(student_correct_answers.items(), key=lambda x: x[1])
         possible_answers_count = sum(best_answer.values())
         print(f"1. СТУДЕНТ С НАИБОЛЬШИМ ЧИСЛОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ:")
