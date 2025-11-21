@@ -33,7 +33,7 @@ find "$BASE_PATH" -name "TEST-*" -type f | while read test_file; do
                      worst_student = student
                  }
              }
-             max_wrong = max_possible[student] - total_correct[student]
+             max_wrong = max_possible[worst_student] - total_correct[worst_student]
              print "   Студент: " worst_student
              print "   Количество неправильных ответов: " max_wrong
         }'
