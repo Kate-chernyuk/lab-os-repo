@@ -5,6 +5,7 @@ import glob
 from collections import defaultdict
 import sys
 
+
 def get_subjects(base_path):
     """Получить список предметов из базовой директории"""
     subjects = [d for d in os.listdir(base_path)
@@ -12,12 +13,13 @@ def get_subjects(base_path):
                 and not (d.startswith('.') or d == "students")]
     return subjects
 
+
 def find_student_with_most_mistakes(group_number, base_path="."):
     """Анализ данных для конкретной группы - находим студента с наибольшим количеством неправильных ответов"""
     subjects = get_subjects(base_path)
 
     student_correct_answers = defaultdict(int)
-    best_answer = defaultdict(int) #не имея точного числа вопросов, будем брать максимальное из предоставленных правильных
+    max_student_can_do = defaultdict(int)
 
     for subject in subjects:
         test_path = os.path.join(base_path, subject, "tests", "TEST-*")
@@ -28,6 +30,9 @@ def find_student_with_most_mistakes(group_number, base_path="."):
                 with open(test_file, 'r', encoding='UTF-8') as f:
                     reader = csv.reader(f, delimiter=';')
 
+                    best_possible_answer = 0
+                    student_number_of_attempts = defaultdict(int)
+
                     for row in reader:
                         if len(row) >= 5:
                             group, name, date, correct_answers, grade = row
@@ -36,20 +41,24 @@ def find_student_with_most_mistakes(group_number, base_path="."):
                                 try:
                                     correct = int(correct_answers.strip())
                                     student_correct_answers[name] += correct
-                                    best_answer[str(test_file)] = max(correct, best_answer[str(test_file)])
+                                    student_number_of_attempts[name] += 1
+                                    best_possible_answer = max(correct, best_possible_answer)
                                 except ValueError:
                                     continue
+
+                    for key, value in student_number_of_attempts.items():
+                        max_student_can_do[key] += value * best_possible_answer
+
             except Exception as e:
                 print(f"Ошибка при чтении {test_file}: {e}")
                 continue
 
     if student_correct_answers:
-        # коварно исходим из той логики, что студент с наименьшим количеством правильных ответов = студент с наибольшим количеством неправильных
+        # коварно исходим из той логики, что студент с наименьшим количеством правильных ответов = студент с наибольшим количествои неправильных
         min_student = min(student_correct_answers.items(), key=lambda x: x[1])
-        possible_answers_count = sum(best_answer.values())
-        print(f"1. СТУДЕНТ С НАИБОЛЬШИМ ЧИСЛОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ:")
+        print(f"СТУДЕНТ С НАИБОЛЬШИМ ЧИСЛОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ:")
         print(f"   Студент: {min_student[0]}")
-        print(f"   Количество неправильных ответов: {possible_answers_count - min_student[1]}")
+        print(f"   Количество неправильных ответов: {max_student_can_do[min_student[0]] - min_student[1]}")
 
 
 def analyze_attendance(group_number, base_path="."):
@@ -64,16 +73,20 @@ def analyze_attendance(group_number, base_path="."):
         for attendance_file in attendance_files:
             try:
                 with open(attendance_file, 'r', encoding='utf-8') as f:
-                    total_attendance = 0
+                    attendance_array = []
 
                     for line in f:
                         parts = line.strip().split()
                         if len(parts) >= 2:
                             name, attendance_str = parts[0], parts[1]
-                            attendance_count = attendance_str.count('1')
-                            total_attendance += attendance_count
+                            attendance_array.append(attendance_str)
 
-                    attendance_stats[subject] += total_attendance
+                    for j in range(len(attendance_array[0])):
+                        day_attendance = 0
+                        for i in range(len(attendance_array)):
+                            day_attendance += int(attendance_array[i][j])
+                        attendance_stats[subject + ', ' + str(j+1)] += day_attendance
+
             except Exception as e:
                 continue
 
@@ -86,7 +99,6 @@ def analyze_attendance(group_number, base_path="."):
         print(f"   Количество посещений: {min_att[1]}")
         print(f"   Занятие с максимальной посещаемостью: {max_att[0]}")
         print(f"   Количество посещений: {max_att[1]}")
-
 
 
 if __name__ == "__main__":
