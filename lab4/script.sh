@@ -46,8 +46,6 @@ find "$BASE_PATH" -name "TEST-*" -type f | while read test_file; do
              print "   Студент: " worst_student_2
              print "   Количество неправильных ответов: "  max_wrongs
 
-        }'
-
 echo "2. СТАТИСТИКА ПОСЕЩАЕМОСТИ:"
 
 find "$BASE_PATH" -name "${GROUP_NUMBER}-attendance" -type f | while read att_file; do
