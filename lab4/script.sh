@@ -5,7 +5,7 @@ set -e
 GROUP_NUMBER="${1:-A-09-22}"
 BASE_PATH="${2:-.}"
 
-echo "СТУДЕНТ С НАИБОЛЬШИМ ЧИСЛОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ:"
+echo "1. ПОИСК СТУДЕНТА С НАИБОЛЬШИМ КОЛИЧЕСТВОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ"
 
 find "$BASE_PATH" -name "TEST-*" -type f | while read test_file; do
     awk -F';' -v group="$GROUP_NUMBER" '$1 == group {
@@ -25,17 +25,27 @@ find "$BASE_PATH" -name "TEST-*" -type f | while read test_file; do
         }
         END {
              min_correct = -1
-             worst_student = ""
+             worst_student_1 = ""
+             worst_student_2 = ""
+             max_wrongs = 0
              for (student in max_possible) {
                  if (min_correct == -1) min_correct = total_correct[student]
                  if (total_correct[student] < min_correct) {
                      min_correct = total_correct[student]
-                     worst_student = student
+                     worst_student_1 = student
+                 }
+                 if (max_possible[student] - total_correct[student] > max_wrongs) {
+                     max_wrongs = max_possible[student] - total_correct[student]
+                     worst_student_2 = student
                  }
              }
-             max_wrong = max_possible[student] - total_correct[student]
-             print "   Студент: " worst_student
-             print "   Количество неправильных ответов: " max_wrong
+             print "СТУДЕНТ С НАИМЕНЬШИМ КОЛИЧЕСТВОМ ПРАВИЛЬНЫХ ОТВЕТОВ:"
+             print "   Студент: " worst_student_1
+             print "   Количество неправильных ответов: "  max_possible[worst_student_1] - total_correct[worst_student_1]
+             print "СТУДЕНТ С НАИБОЛЬШЕЙ РАЗНИЦЕЙ МЕЖДУ ОБЩИМ КОЛИЧЕСТВОМ ВОПРОСОВ, НА КОТОРЫЕ ОН ОТВЕТИЛ, И КОЛИЧЕСТВОМ ПРАВИЛЬНЫХ ОТВЕТОВ:"
+             print "   Студент: " worst_student_2
+             print "   Количество неправильных ответов: "  max_wrongs
+
         }'
 
 echo "2. СТАТИСТИКА ПОСЕЩАЕМОСТИ:"

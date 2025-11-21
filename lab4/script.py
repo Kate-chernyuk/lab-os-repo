@@ -55,11 +55,30 @@ def find_student_with_most_mistakes(group_number, base_path="."):
 
     if student_correct_answers:
         # коварно исходим из той логики, что студент с наименьшим количеством правильных ответов = студент с наибольшим количествои неправильных
+        #!!!UPDATE
+        # измышлизм: чисто логически, больше всего неправильных ответов у того,
+        # у кого наибольшая разница между тем, на сколько всего вопросов он(а) ответил(а)
+        # (т.е. число попыток * предполагаемое количество вопросов в тесте)
+        # и сколько из них было правильными
+
+        print("1. ПОИСК СТУДЕНТА С НАИБОЛЬШИМ КОЛИЧЕСТВОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ")
+
+        # на всякий случай, сохраним старую логику
         min_student = min(student_correct_answers.items(), key=lambda x: x[1])
-        print(f"СТУДЕНТ С НАИБОЛЬШИМ ЧИСЛОМ НЕПРАВИЛЬНЫХ ОТВЕТОВ:")
+        print(f"СТУДЕНТ С НАИМЕНЬШИМ КОЛИЧЕСТВОМ ПРАВИЛЬНЫХ ОТВЕТОВ:")
         print(f"   Студент: {min_student[0]}")
         print(f"   Количество неправильных ответов: {max_student_can_do[min_student[0]] - min_student[1]}")
 
+        # новая
+        max_wrongs = 0
+        for key, value in student_correct_answers.items():
+            if max_student_can_do[key] - value > max_wrongs:
+                max_wrongs = max_student_can_do[key] - value
+                worst_student = key
+
+        print(f"СТУДЕНТ С НАИБОЛЬШЕЙ РАЗНИЦЕЙ МЕЖДУ ОБЩИМ КОЛИЧЕСТВОМ ВОПРОСОВ, НА КОТОРЫЕ ОН ОТВЕТИЛ, И КОЛИЧЕСТВОМ ПРАВИЛЬНЫХ ОТВЕТОВ:")
+        print(f"   Студент: {worst_student}")
+        print(f"   Количество неправильных ответов: {max_wrongs}")
 
 def analyze_attendance(group_number, base_path="."):
     """Анализ посещаемости - найти занятия с минимальной и максимальной посещаемостью"""
@@ -109,7 +128,7 @@ if __name__ == "__main__":
         group_number = "A-09-22"
         base_path = "/os-labs/labs-2025/lab3/labfiles-25"
 
-    sys.stdout.reconfigure(encoding='utf-8') if hasattr(sys.stdout, 'reconfigure') else None
+    sys.stdout.reconfigure(encoding='utf-8')
 
     find_student_with_most_mistakes(group_number, base_path)
     analyze_attendance(group_number, base_path)
